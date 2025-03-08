@@ -103,6 +103,7 @@
 % \changes{v1.1z}{2021/12/08}{\LaTeX\ \texttt{!<2021-11-15!>}版ほぼ対応}
 % \changes{v1.2a}{2022-12-05}{\LaTeX\ \texttt{!<2023-06-01!>}版における
 %    バナーの出力方法に追従}
+% \changes{v1.2b}{2025/06/01}{\LaTeX\ \texttt{!<2025-06-01!>}版}
 % \fi
 %
 % \iffalse
@@ -152,6 +153,26 @@
 % \changes{v1.1w}{2020/09/30}{\LaTeX\ \texttt{!<2020-10-01!>}版対応確認}
 % \changes{v1.1y}{2021/06/27}{\LaTeX\ \texttt{!<2021-06-01!>}版ほぼ対応}
 % \changes{v1.1z}{2021/12/08}{\LaTeX\ \texttt{!<2021-11-15!>}版ほぼ対応}
+% \changes{v1.2b}{2025/06/01}{\LaTeX\ \texttt{!<2025-06-01!>}版}
+%
+%    \begin{macrocode}
+%<*plcore>
+\edef \pl@base@fmtversion {\fmtversion}
+\def \plFallbackIfBaseFormatOlder #1#2{%
+  \@ifl@t@r\pl@base@fmtversion{#1}{}{%
+    \@addtofilelist{#1}%
+    \@@input #2\relax
+    \endinput
+  }%
+}%
+%</plcore>
+%<*plcore|platexrelease>
+\plFallbackIfBaseFormatOlder{2025-06-01}
+%<plcore>  {plcore-2023-02-14.ltx}
+%<platexrelease>  {platexrelease-2023-02-14.sty}
+%</plcore|platexrelease>
+%    \end{macrocode}
+%
 %    \begin{macrocode}
 %<*2ekernel>
 %\def\fmtname{LaTeX2e}
@@ -160,7 +181,7 @@
 %<latexrelease>\edef\latexreleaseversion
 %<platexrelease>\edef\p@known@latexreleaseversion
 %<*2ekernel|latexrelease|platexrelease>
-   {2022-11-01}
+   {2025-06-01}
 %</2ekernel|latexrelease|platexrelease>
 %    \end{macrocode}
 %
@@ -201,10 +222,10 @@
 %</plcore>
 %<platexrelease>\edef\platexreleaseversion
 %<*plcore|platexrelease>
-   {2023-02-14}
+   {2025-06-01}
 %</plcore|platexrelease>
 %<*plcore>
-\def\ppatch@level{1}
+\def\ppatch@level{0}
 %</plcore>
 %    \end{macrocode}
 % \end{macro}

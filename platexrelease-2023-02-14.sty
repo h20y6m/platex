@@ -17,12 +17,10 @@
 %% -------------------------------------------------------------
 %% 
 %% File: plvers.dtx
-\plFallbackIfBaseFormatOlder{2025-06-01}
-  {platexrelease-2023-02-14.sty}
 \edef\p@known@latexreleaseversion
-   {2025-06-01}
+   {2022-11-01}
 \edef\platexreleaseversion
-   {2025-06-01}
+   {2023-02-14}
 \newif\if@plincludeinrelease
 \@plincludeinreleasefalse
 \def\plIncludeInRelease#1{%
@@ -2443,9 +2441,6 @@ of this package available from CTAN}
   \ifydir\else\vbox{\pdfprimitive\everypar{}\hskip\z@}\fi}
 \def\pltx@adjust@wd@outputbox@vtryfc{%
   \ifydir\else\pdfprimitive\everypar{}\hskip\z@\fi}
-\plIncludeInRelease{2025/06/01}{\@makecol}
-                   {Remove redefinition}%
-\plEndIncludeInRelease
 \plIncludeInRelease{2017/04/08}{\@makecol}
                    {Take into account depth of footnote}%
 \gdef\@makecol{%
@@ -2577,54 +2572,6 @@ of this package available from CTAN}
        }%
    \fi
    \global \maxdepth \@maxdepth
-}
-\plEndIncludeInRelease
-\plIncludeInRelease{2025/06/01}{\@makespecialcolbox}
-                   {Remove redefinition}%
-\plEndIncludeInRelease
-\plIncludeInRelease{0000/00/00}{\@makespecialcolbox}
-                   {Original}%
-\gdef\@makespecialcolbox{%
-   \setbox\@outputbox \vbox {%
-     \@texttop
-     \dimen@ \dp\@outputbox
-     \unvbox\@outputbox
-     \vskip-\dimen@
-     }%
-   \@tempdima \@colht
-   \ifdim \wd\@kludgeins>\z@
-     \advance \@tempdima -\ht\@outputbox
-     \advance \@tempdima \pageshrink
-     \setbox\@outputbox \vbox to \@colht {%
-       \unvbox\@outputbox
-       \vskip \@tempdima
-       \@textbottom
-       \ifvoid\footins\else % for pLaTeX
-         \vskip\skip\footins
-         \color@begingroup
-            \normalcolor
-            \footnoterule
-            \unvbox \footins
-         \color@endgroup
-       \fi
-     }%
-   \else
-     \advance \@tempdima -\ht\@kludgeins
-     \setbox \@outputbox \vbox to \@colht {%
-       \vbox to \@tempdima {%
-         \unvbox\@outputbox
-         \@textbottom
-         \ifvoid\footins\else % for pLaTeX
-           \vskip\skip\footins
-           \color@begingroup
-              \normalcolor
-              \footnoterule
-              \unvbox \footins
-           \color@endgroup
-         \fi
-       }\vss}%
-   \fi
-   {\setbox \@tempboxa \box \@kludgeins}%
 }
 \plEndIncludeInRelease
 \plIncludeInRelease{2020/10/01}{\@vtryfc}
@@ -2848,94 +2795,6 @@ of this package available from CTAN}
 \plIncludeInRelease{0000/00/00}{\@tombowreset@@paper}
                    {Macro separated}%
 \let\@tombowreset@@paper\@undefined
-\plEndIncludeInRelease
-\plIncludeInRelease{2025/06/01}{\@outputpage}
-                   {\LaTeXe~2025-06-01}%
-\def \@outputpage {%
-  \UseHook {build/page/before}%
-\begingroup
-  \iftdir
-    \dimen\z@\textwidth \textwidth\textheight \textheight\dimen\z@
-  \fi
-  \let \protect \noexpand
-  \language\document@default@language
-  \@resetactivechars
-  \nfss@catcodes
-  \catcode`\$\thr@@
-  \catcode`\_8\relax
-  \catcode`\ 10\relax
-  \catcode`\~13\relax
-  \global\let\@@if@newlist\if@newlist
-  \global\@newlistfalse
-  \@parboxrestore
-    \UseHook {build/page/reset}%
-  \shipout \vbox{%
-    \yoko
-    \set@typeset@protect
-    \aftergroup \endgroup
-    \aftergroup \set@typeset@protect
-  \if@specialpage
-    \global \@specialpagefalse
-    \@nameuse {ps@\@specialstyle}%
-  \fi
-  \if@twoside
-    \ifodd\count\z@
-      \let \@thehead \@oddhead
-      \let \@thefoot \@oddfoot
-      \let \@themargin \oddsidemargin
-    \else
-      \let \@thehead \@evenhead
-      \let \@thefoot \@evenfoot
-      \let \@themargin \evensidemargin
-    \fi
-  \fi
-  \@tombowreset@@paper
-  \reset@font
-  \normalsize
-  \normalsfcodes
-  \let \label \@gobble@with@sphack@om
-  \let \index \@gobble@with@sphack@som
-  \let \glossary \@gobble@with@sphack@om
-  \baselineskip \z@skip
-  \lineskip \z@skip
-  \lineskiplimit \z@
-    \@begindvi
-    \@outputtombow
-    \vskip \@@topmargin
-    \moveright\@themargin \vbox {%
-      \setbox\@tempboxa \vbox to\headheight {%
-        \vfil
-        \pdfannot@link@off@@
-        \UseTaggingSocket{build/page/header}{}%
-          {
-            \color@hbox
-              \normalcolor
-              \hb@xt@ \textwidth {\@thehead }%
-            \color@endbox
-          }
-        \pdfannot@link@on@@
-      }
-      \dp \@tempboxa \z@
-      \box \@tempboxa
-      \vskip \headsep
-      \box \@outputbox
-      \baselineskip \footskip
-      \pdfannot@link@off@@
-      \UseTaggingSocket{build/page/footer}{}%
-         {
-            \color@hbox
-               \normalcolor
-               \hb@xt@ \textwidth {\@thefoot }%
-             \color@endbox
-         }
-      \pdfannot@link@on@@
-      }
-    }
-  \global \let \if@newlist \@@if@newlist
-  \global \@colht \textheight
-  \stepcounter{page}%
-   \UseHook {build/page/after}%
-}
 \plEndIncludeInRelease
 \plIncludeInRelease{2018/05/20}{\@outputpage}
                    {Use \@tombowreset@@paper}%

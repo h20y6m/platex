@@ -17,6 +17,11 @@
 \ProvidesPackage{pfltrace}
      [2016/05/20 v1.2e Standard pLaTeX package (float tracing)]
 \RequirePackageWithOptions{fltrace}
+\plIncludeInRelease{2025/06/01}{\@makespecialcolbox}
+                   {Remove redefinition}%
+\plEndIncludeInRelease
+\plIncludeInRelease{0000/00/00}{\@makespecialcolbox}
+                   {Original}%
 \gdef\@makespecialcolbox{%
    \fl@trace{Krudgeins ht \the\ht\@kludgeins\space
                        dp \the\dp\@kludgeins\space
@@ -72,6 +77,7 @@
    {\setbox \@tempboxa \box \@kludgeins}%
      \fl@trace {kludgeins box made void}%
 }
+\plEndIncludeInRelease
 \endinput
 %%
 %% End of file `pfltrace.sty'.
