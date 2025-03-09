@@ -1847,7 +1847,7 @@
   \@outputbox@reinsertbskip
   \@outputbox@attachfloats
   \@if@footnotes@TF
-    {\@outputbox@append{\@textbottom}}%
+    {\@outputbox@append{\@textbottom}\let\@textbottom\relax}%
     {}%
   \@outputbox@appendfootnotes
 }
