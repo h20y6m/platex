@@ -1843,7 +1843,15 @@
   \ifydir\else\vbox{\pdfprimitive\everypar{}\hskip\z@}\fi}
 \def\pltx@adjust@wd@outputbox@vtryfc{%
   \ifydir\else\pdfprimitive\everypar{}\hskip\z@\fi}
-\AssignSocketPlug {build/column/outputbox}{floats-space-footnotes}
+\NewSocketPlug {build/column/outputbox}{floats-footnotes-platex} {%
+  \@outputbox@reinsertbskip
+  \@outputbox@attachfloats
+  \@if@footnotes@TF
+    {\@outputbox@append{\@textbottom}}%
+    {}%
+  \@outputbox@appendfootnotes
+}
+\AssignSocketPlug {build/column/outputbox}{floats-footnotes-platex}
 \AddToHook{cmd/@outputbox@removebskip/after}[platex]{%
   \@outputbox@append{%
     \pltx@adjust@wd@outputbox

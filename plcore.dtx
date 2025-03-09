@@ -776,12 +776,21 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% ボトムフロート、空き、脚注の順に出力されるように\texttt{build/column/outputbox}ソケットに
-% \texttt{floats-space-footnotes}プラグを割り当てます。
+% ボトムフロート、空き、脚注の順に出力されるようになるべく従来のp\LaTeXe 
+% に近い挙動の\texttt{floats-footnotes-platex}プラグを定義し
+% \texttt{build/column/outputbox}ソケットに割り当てます。
 % \changes{v1.4}{2025/06/01}{フロートと脚注の順序を\texttt{build/column/outputbox}ソケット・プラグで}
 %    \begin{macrocode}
 %<*plcore>
-\AssignSocketPlug {build/column/outputbox}{floats-space-footnotes}
+\NewSocketPlug {build/column/outputbox}{floats-footnotes-platex} {%
+  \@outputbox@reinsertbskip
+  \@outputbox@attachfloats
+  \@if@footnotes@TF
+    {\@outputbox@append{\@textbottom}}%
+    {}%
+  \@outputbox@appendfootnotes
+}
+\AssignSocketPlug {build/column/outputbox}{floats-footnotes-platex}
 %</plcore>
 %    \end{macrocode}
 %
