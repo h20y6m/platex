@@ -1,0 +1,71 @@
+\errorcontextlines=100
+\documentclass[11pt]{tarticle}
+\usepackage[T1]{fontenc}
+% --------------------------------------
+% math check
+\usepackage{xcolor}
+\def\mymathi{\color{red}}
+\def\mymathii{\color{green!50!black}}
+\def\mymathiii{\color{blue}}
+\def\mymathiv{\ERROR}
+\newcount\mymathlevel
+\protected\def\mymath{%
+  \advance\mymathlevel1 %
+  \csname mymath\romannumeral\mymathlevel\endcsname}
+\everymath{\mymath}
+% --------------------------------------
+\usepackage{etoolbox}
+\apptocmd{\adjustbaseline}{%
+%  \ybaselineshift=1pt
+%  \tbaselineshift=4pt
+}{}{}
+%\textbaselineshiftfactor=0
+\showboxdepth=10
+\showboxbreadth=1000
+\tracingoutput=1
+\begin{document}
+\newcommand{\TestI}[1]{%
+  \leavevmode\llap{\texttt{|\detokenize{#1}|}}：
+  ◆あM◆
+  \parbox#1{5zw}{◆あM◆ \\ ◆あ \hfill M◆ \\ \hfill ◆あM◆}%
+  ◆あM◆
+  $\mbox{◆あM◆
+  \parbox#1{5zw}{◆あM◆ \\ ◆あ \hfill M◆ \\ \hfill ◆あM◆}%
+  ◆あM◆}%
+  ◆あM◆
+  \parbox#1{5zw}{◆あM◆ \\ ◆あ \hfill M◆ \\ \hfill ◆あM◆}%
+  ◆あM◆$%
+  ◆あM◆
+}
+\TestI{}
+\vfil
+\TestI{[t]}
+\vfil
+\TestI{[b]}
+\vfil
+\TestI{[c]}
+\newpage
+\TestI{<y>}
+\vfil
+\TestI{<y>[t]}
+\vfil
+\TestI{<y>[b]}
+\vfil
+\TestI{<y>[c]}
+\newpage
+\TestI{<t>}
+\vfil
+\TestI{<t>[t]}
+\vfil
+\TestI{<t>[b]}
+\vfil
+\TestI{<t>[c]}
+\newpage
+\TestI{<z>}
+\vfil
+\TestI{<z>[t]}
+\vfil
+\TestI{<z>[b]}
+\vfil
+\TestI{<z>[c]}
+\end{document}

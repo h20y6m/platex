@@ -1,0 +1,50 @@
+\errorcontextlines=100
+\documentclass[11pt,landscape,a4j]{jarticle}
+\usepackage{plext}
+\usepackage[T1]{fontenc}
+% --------------------------------------
+% math check
+\usepackage{xcolor}
+\def\mymathi{\color{red}}
+\def\mymathii{\color{green!50!black}}
+\def\mymathiii{\color{blue}}
+\def\mymathiv{\ERROR}
+\newcount\mymathlevel
+\protected\def\mymath{%
+  \advance\mymathlevel1 %
+  \csname mymath\romannumeral\mymathlevel\endcsname}
+\everymath{\mymath}
+% --------------------------------------
+\usepackage{etoolbox}
+\apptocmd{\adjustbaseline}{%
+%  \ybaselineshift=1pt
+%  \tbaselineshift=4pt
+}{}{}
+%\textbaselineshiftfactor=0
+\showboxdepth=10
+\showboxbreadth=1000
+\tracingoutput=1
+\begin{document}
+◆あM◆
+\underline{◆あM◆}%
+◆あM◆
+$\mbox{◆あM◆
+\underline{◆あM◆}%
+◆あM◆}%
+◆あM◆
+\underline{◆あM◆}%
+◆あM◆$%
+◆あM◆
+
+◆あM◆
+\kasen{◆あM◆}%
+◆あM◆
+$\mbox{◆あM◆
+\kasen{◆あM◆}%
+◆あM◆}%
+◆あM◆
+\kasen{◆あM◆}%
+◆あM◆$%
+◆あM◆
+
+\end{document}

@@ -14,12 +14,45 @@
 %% 
 %% File: plext.dtx
 \NeedsTeXFormat{pLaTeX2e}
+\IfFormatAtLeastTF{2026-06-01}{}{\input{plext-2020-10-07.sty}\endinput}
 \ProvidesPackage{plext}
-   [2020/10/07 v1.2m pLaTeX package file (community edition)]
+   [2026/06/01 v1.2n pLaTeX package file (community edition)]
 \newif\if@rotsw
+\protected\def\plext@dirbox@vtop@top{%
+  \def\@plext@dirbox@vbox@adjust{%
+    \setbox\adjust@box\hbox{\char\jis"3441}%"
+    \dp0\dimexpr\ht0+\dp0-\ht\adjust@box\relax
+    \ht0\dimexpr\ht\adjust@box\relax
+  }%
+  \afterassignment\plext@dirbox@vbox@auxi
+  \setbox0\vbox}
+\protected\def\plext@dirbox@vbox@bottom{%
+  \def\@plext@dirbox@vbox@adjust{%
+    \setbox\adjust@box\hbox{\char\jis"3441}%"
+    \ht0\dimexpr\ht0+\dp0-\dp\adjust@box\relax
+    \dp0\dimexpr\dp\adjust@box\relax
+  }%
+  \afterassignment\plext@dirbox@vbox@auxi
+  \setbox0\vbox}
+\protected\def\plext@dirbox@vbox@auxi{%
+  \aftergroup\plext@dirbox@vbox@auxii
+}
+\protected\def\plext@dirbox@vbox@auxii{%
+  \begingroup
+    \@plext@dirbox@vbox@adjust
+    \ifmmode
+      \lower\dimexpr\@plext@unbaselineshift\expandafter\relax
+    \fi
+    \box0 %
+  \endgroup
+}
+\def\@plext@unbaselineshift{%
+  \iftdir\tbaselineshift\else\ybaselineshift\fi
+    *\textbaselineshiftfactor/1000
+}
 \def\array{\let\@acol\@arrayacol \let\@classz\@arrayclassz
   \let\@classiv\@arrayclassiv
-  \let\\\@arraycr\let\@halignto\@empty\X@tabarray}
+  \let\\\@arraycr\let\@halignto\@empty\m@th\X@tabarray}
 \def\tabular{\let\@halignto\@empty\X@tabular}
 \@namedef{tabular*}{\@ifnextchar<%>
    {\p@stabular}{\p@stabular<Z>}}
@@ -30,34 +63,26 @@
 \def\p@stabular<#1>#2{%
    \setlength\dimen@{#2}%
    \edef\@halignto{to\the\dimen@}\p@tabular<#1>}
-\def\p@tabular<#1>{\leavevmode \null\hbox \bgroup $\let\@acol\@tabacol
+\def\p@tabular<#1>{\leavevmode \null\hbox \bgroup \let\@acol\@tabacol
    \let\@classz\@tabclassz
    \let\@classiv\@tabclassiv \let\\\@tabularcr\p@tabarray<#1>}
-\def\p@tabarray<#1>{\m@th\@ifnextchar[%]
+\def\p@tabarray<#1>{\@ifnextchar[%]
    {\p@array<#1>}{\p@array<#1>[c]}}
 \def\p@array<#1>[#2]#3{%
   \fork@array@option<#1>[#2]\@begin@alignbox
   \bgroup\box@dir\adjustbaseline
   \setbox\@arstrutbox\hbox{%
   \iftdir
-    \if #1y\relax\yoko
-       \vrule\@height\arraystretch\ht\strutbox
-             \@depth\arraystretch\dp\strutbox \@width\z@
-    \else\if #1z\relax\@rotswtrue
+    \ifmdir
        \vrule\@height\arraystretch\ht\zstrutbox
              \@depth\arraystretch\dp\zstrutbox \@width\z@
     \else
        \vrule\@height\arraystretch\ht\tstrutbox
              \@depth\arraystretch\dp\tstrutbox \@width\z@
-    \fi\fi
-  \else
-    \if #1t\relax\tate
-       \vrule\@height\arraystretch\ht\tstrutbox
-             \@depth\arraystretch\dp\tstrutbox \@width\z@
-    \else
-       \vrule\@height\arraystretch\ht\strutbox
-             \@depth\arraystretch\dp\strutbox \@width\z@
     \fi
+  \else
+    \vrule\@height\arraystretch\ht\strutbox
+          \@depth\arraystretch\dp\strutbox \@width\z@
   \fi}%
   \@mkpream{#3}\edef\@preamble{\ialign \noexpand\@halignto
   \bgroup \tabskip\z@skip \@arstrut \@preamble \tabskip\z@skip \cr}%
@@ -70,83 +95,100 @@
     \ifhmode \@preamerr\z@ \@@par\fi
     \@preamble}
 \def\endarray{\crcr\egroup\egroup\@end@alignbox}
-\def\endtabular{\crcr\egroup\egroup\@end@alignbox $\egroup\null}
+\def\endtabular{\crcr\egroup\egroup\@end@alignbox\egroup\null}
 \expandafter \let \csname endtabular*\endcsname = \endtabular
 \def\fork@array@option<#1>[#2]{%
 \@rotswfalse
-\iftdir
-\if #1y\relax\let\box@dir\yoko
   \if #2t\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \raise\@tempdima\vtop\bgroup\kern\z@\vtop}%
-     \let\@end@alignbox\egroup
+    \let\@begin@alignbox\vtop
   \else\if #2b\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \raise\@tempdima\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
+    \let\@begin@alignbox\vbox
   \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
+    \let\@begin@alignbox\vcenter@text
   \fi\fi
-\else\if #1z\relax\let\box@dir\relax\@rotswtrue
-  \if #2t\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \advance\@tempdima\ht\tstrutbox
-         \raise\arraystretch\@tempdima\vtop\bgroup\kern\z@\vtop}%
-     \let\@end@alignbox\egroup
-  \else\if #2b\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \advance\@tempdima-\dp\tstrutbox
-         \raise\arraystretch\@tempdima\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
+  \let\@end@alignbox\relax
+  \iftdir
+    \ifmdir
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
+          \let\@end@alignbox\egroup
+        \else\if #2b\relax
+          \def\@begin@alignbox{\vbox\bgroup\vbox}%
+          \def\@end@alignbox{\kern\z@\egroup}%
+        \fi\fi
+      \else\if #1t\relax
+        \let\box@dir\tate
+        \ifmmode
+          \if #2t\relax
+          \else\if #2b\relax
+          \else
+            \let\@begin@alignbox\vcenter
+          \fi\fi
+        \else
+          \if #2t\relax
+            \def\@begin@alignbox{%
+              \raise\dimexpr\tbaselineshift-\ybaselineshift\relax\vtop}%
+            \let\@end@alignbox\relax
+          \else\if #2b\relax
+            \def\@begin@alignbox{%
+              \raise\dimexpr\tbaselineshift-\ybaselineshift\relax\vbox}%
+            \let\@end@alignbox\relax
+          \fi\fi
+        \fi
+      \else
+        \let\box@dir\relax
+      \fi\fi
+    \else
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \def\@begin@alignbox{\vtop\bgroup\kern\z@\vtop}%
+          \let\@end@alignbox\egroup
+        \else\if #2b\relax
+          \def\@begin@alignbox{\vbox\bgroup\vbox}%
+          \def\@end@alignbox{\kern\z@\egroup}%
+        \fi\fi
+      \else\if #1z\relax
+        \let\box@dir\relax
+        \@rotswtrue
+        \if #2t\relax
+          \def\@begin@alignbox{%
+            \null$\m@th
+            \raise\dimexpr\ybaselineshift
+              -\dimexpr\ybaselineshift*\textbaselineshiftfactor/1000\relax
+              \relax\vtop}%
+          \def\@end@alignbox{\m@th$\null}%
+        \else\if #2b\relax
+          \def\@begin@alignbox{%
+            \null$\m@th
+            \raise\dimexpr\ybaselineshift
+              -\dimexpr\ybaselineshift*\textbaselineshiftfactor/1000\relax
+              \relax\vbox}%
+          \def\@end@alignbox{\m@th$\null}%
+        \else
+          \def\@begin@alignbox{\null$\m@th\vcenter}%
+          \def\@end@alignbox{\m@th$\null}%
+        \fi\fi
+      \else
+        \let\box@dir\tate
+      \fi\fi
+    \fi
   \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\else\let\box@dir\tate
-  \if #2t\relax
-     \let\@begin@alignbox\vtop
-     \let\@end@alignbox\relax
-  \else\if #2b\relax
-     \let\@begin@alignbox\vbox
-     \let\@end@alignbox\relax
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\fi\fi
-\else
-\if #1t\relax\let\box@dir\tate
-  \if #2t\relax
-     \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
-     \let\@end@alignbox\egroup
-  \else\if #2b\relax
-     \def\@begin@alignbox{\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\else\let\box@dir\yoko
-  \if #2t\relax
-     \let\@begin@alignbox\vtop
-     \let\@end@alignbox\relax
-  \else\if #2b\relax
-     \let\@begin@alignbox\vbox
-     \let\@end@alignbox\relax
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\fi\fi}
+    \if #1t\relax
+      \let\box@dir\tate
+      \if #2t\relax
+        \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
+        \let\@end@alignbox\egroup
+      \else\if #2b\relax
+        \def\@begin@alignbox{\vbox\bgroup\vbox}%
+        \def\@end@alignbox{\kern\z@\egroup}%
+      \fi\fi
+    \else
+      \let\box@dir\yoko
+    \fi
+  \fi}
 \newbox\@floatbox
 \newdimen\floatwidth
 \newdimen\floatheight
@@ -223,16 +265,14 @@
      \@latex@error{Use \noexpand\pcaption with `\string\layoutfloat'}\@eha
   \fi
   \make@pcaptionbox{#3}%
-  \@pboxswfalse
   \setbox\@tempboxa\vbox{\hbox to\hsize{\if l\float@pos\else\hss\fi
     \if l\caption@posb\box\@captionbox\kern\captionfloatsep\fi
     \if t\caption@posa\vtop
     \else\if b\caption@posa\vbox
-    \else\@pboxswtrue $\vcenter \fi\fi
+    \else \vcenter@text \fi\fi
     {\if u\caption@posb\box\@captionbox\kern\captionfloatsep\fi
      \unvbox\@floatbox
      \if d\caption@posb\kern\captionfloatsep\box\@captionbox\fi}%
-    \if@pboxsw \m@th$\fi
     \if r\caption@posb\kern\captionfloatsep\box\@captionbox\fi
     \if r\float@pos\else\hss\fi}}%
   \par\vskip.25\baselineskip
@@ -260,19 +300,18 @@
   \if@tempswa \@tempdima\ht0 \advance\@tempdima\dp0
   \else \@tempdima\wd0 \fi
   \ifdim\@tempdima>\captionwidth \@tempdima\captionwidth \fi
-  \@pboxswfalse
   \setbox0\hbox{\if@rotsw $\fi
     \if u\caption@posb\vbox
     \else\if d\caption@posb\vbox
     \else\if t\caption@posa\vtop
     \else\if b\caption@posa\vbox
-    \else\ifmmode\vcenter\else\@pboxswtrue $\vcenter\fi
+    \else\ifmmode\vcenter\else\vcenter@text\fi
     \fi\fi\fi\fi
     {\hsize\@tempdima\kern\z@
     \vbox{\captiondir\hsize\@tempdima
       \captionfontsetup\parindent\z@\inhibitglue
       \csname fnum@\@captype\endcsname\char\euc"A1A1\relax#1}\kern\z@
-    }\if@pboxsw \m@th$\fi \if@rotsw \m@th$\fi}%
+    }\if@rotsw \m@th$\fi}%
   \let\to@captionboxwidth\relax
   \if l\caption@posb \else\if r\caption@posb\else
   \def\to@captionboxwidth{to\floatwidth}\fi\fi
@@ -355,54 +394,92 @@
     \fi
     \@begin@parbox\@parboxto{\box@dir\adjustbaseline
        \let\hss\vss\let\unhbox\unvbox
-       \csname bm@#4\endcsname}\@end@parbox
+       \csname bm@#4\endcsname}%
+       \@end@parbox
   \@end@tempboxa\egroup\null}
 \def\fork@parbox@option<#1>[#2]{%
 \@rotswfalse
-\iftdir
-\if #1y\relax\let\box@dir\yoko
-   \if #2t\relax
-      \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
-      \let\@end@parbox\egroup
-   \else\if #2b\relax
-      \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
-      \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\else\if #1z\relax\@rotswtrue \let\box@dir\relax
-   \if #2t\relax
-      \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
-      \let\@end@parbox\egroup
-   \else\if #2b\relax
-      \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
-      \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\else\let\box@dir\tate
-   \if #2t\relax
-      \let\@begin@parbox\vtop
-      \let\@end@parbox\relax
-   \else\if #2b\relax
-      \let\@begin@parbox\vbox
-      \let\@end@parbox\relax
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\fi\fi
+  \iftdir
+    \ifmdir
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \let\@begin@parbox\plext@dirbox@vtop@top
+        \else\if #2b\relax
+          \let\@begin@parbox\plext@dirbox@vbox@bottom
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \else\if #1t\relax
+        \let\box@dir\tate
+        \if #2t\relax
+          \let\@begin@parbox\plext@dirbox@vtop@top
+        \else\if #2b\relax
+          \let\@begin@parbox\plext@dirbox@vbox@bottom
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \else
+        \let\box@dir\relax
+        \if #2t\relax
+          \let\@begin@parbox\vtop
+        \else\if #2b\relax
+          \let\@begin@parbox\vbox
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \fi\fi
+    \else
+      \if #1y\relax\let\box@dir\yoko
+         \if #2t\relax
+            \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
+            \let\@end@parbox\egroup
+         \else\if #2b\relax
+            \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
+            \def\@end@parbox{\kern\z@\egroup}%
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \else\if #1z\relax\@rotswtrue \let\box@dir\relax
+         \if #2t\relax
+            \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
+            \let\@end@parbox\egroup
+         \else\if #2b\relax
+            \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
+            \def\@end@parbox{\kern\z@\egroup}%
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \else\let\box@dir\tate
+         \if #2t\relax
+            \let\@begin@parbox\vtop
+            \let\@end@parbox\relax
+         \else\if #2b\relax
+            \let\@begin@parbox\vbox
+            \let\@end@parbox\relax
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \fi\fi
+    \fi
 \else
 \if #1t\relax\let\box@dir\tate
    \if #2t\relax
@@ -411,13 +488,10 @@
    \else\if #2b\relax
       \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
       \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
    \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
+      \let\@begin@parbox\vcenter@text
+      \let\@end@parbox\relax
+   \fi\fi
 \else\let\box@dir\yoko
    \if #2t\relax
       \let\@begin@parbox\vtop
@@ -425,13 +499,10 @@
    \else\if #2b\relax
       \let\@begin@parbox\vbox
       \let\@end@parbox\relax
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
    \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
+      \let\@begin@parbox\vcenter@text
+      \let\@end@parbox\relax
+   \fi\fi
 \fi\fi}
 \DeclareRobustCommand\pbox{\leavevmode\@ifnextchar<{\X@makePbox}{\X@makePbox<Z>}}
 \def\X@makePbox<#1>{%
@@ -458,8 +529,8 @@
                #4\relax
                \if #3r\relax\else\hss\fi}\fi
   \if@pboxsw \m@th$\egroup\fi\egroup}
-\def\picture{\@ifnextchar<%>
-   {\X@picture}{\X@picture<Z>}}
+\RenewDocumentCommand\picture{O{} D<>{Z} m}{%
+  \X@picture<#2>#3}
 \def\X@picture<#1>(#2,#3){\@ifnextchar(%)
    {\@@picture<#1>(#2,#3)}{\@@picture<#1>(#2,#3)(0,0)}}
 \newdimen\save@ybaselineshift

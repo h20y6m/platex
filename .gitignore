@@ -164,3 +164,6 @@ TSWLatexianTemp*
 
 # tests
 tests/*.pdf
+
+# build
+build/

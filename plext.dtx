@@ -86,15 +86,17 @@
 % \changes{v1.2m}{2020/10/07}{マクロ追加}
 % \changes{v1.2m}{2020/10/07}{Use \cs{@defaultunitsset} (gh/372)
 %    (sync with ltpictur.dtx 2020/08/14 v1.2a)}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01対応}
 % \fi
 %
 % \iffalse
 \NeedsTeXFormat{pLaTeX2e}
+%<package>\IfFormatAtLeastTF{2026-06-01}{}{\input{plext-2020-10-07.sty}\endinput}
 %<*driver>
 \ProvidesFile{plext.dtx}
 %</driver>
 %<package>\ProvidesPackage{plext}
-   [2020/10/07 v1.2m pLaTeX package file (community edition)]
+   [2026/06/01 v1.2n pLaTeX package file (community edition)]
 %<*driver>
 \RequirePackage{plautopatch}
 \documentclass[dvipdfmx,a4paper]{jltxdoc}
@@ -193,6 +195,55 @@
 % \end{macro}
 %
 %
+% \subsection{ヘルパー}
+%
+% ボックスの上端が周囲の和文文字の高さと一致
+%    \begin{macrocode}
+\protected\def\plext@dirbox@vtop@top{%
+  \def\@plext@dirbox@vbox@adjust{%
+    \setbox\adjust@box\hbox{\char\jis"3441}%"
+    \dp0\dimexpr\ht0+\dp0-\ht\adjust@box\relax
+    \ht0\dimexpr\ht\adjust@box\relax
+  }%
+  \afterassignment\plext@dirbox@vbox@auxi
+  \setbox0\vbox}
+%    \end{macrocode}
+% ボックスの下端が周囲の和文文字の深さと一致
+%    \begin{macrocode}
+\protected\def\plext@dirbox@vbox@bottom{%
+  \def\@plext@dirbox@vbox@adjust{%
+    \setbox\adjust@box\hbox{\char\jis"3441}%"
+    \ht0\dimexpr\ht0+\dp0-\dp\adjust@box\relax
+    \dp0\dimexpr\dp\adjust@box\relax
+  }%
+  \afterassignment\plext@dirbox@vbox@auxi
+  \setbox0\vbox}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\protected\def\plext@dirbox@vbox@auxi{%
+  \aftergroup\plext@dirbox@vbox@auxii
+}
+\protected\def\plext@dirbox@vbox@auxii{%
+  \begingroup
+    \@plext@dirbox@vbox@adjust
+    \ifmmode
+      \lower\dimexpr\@plext@unbaselineshift\expandafter\relax
+    \fi
+    \box0 %
+  \endgroup
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\@plext@unbaselineshift{%
+  \iftdir\tbaselineshift\else\ybaselineshift\fi
+    *\textbaselineshiftfactor/1000
+}
+%    \end{macrocode}
+%
+%
+%
 % \subsection{表組環境}
 % tabular環境とarray環境は、組方向を指定するオプションを追加しました。
 % これらのコマンドは、\file{lttab.dtx}で定義されています。
@@ -202,10 +253,11 @@
 % \begin{macro}{\tabular*}
 % array環境とtabular環境を開始するコマンドです。
 % tabular環境にはアスタリスク形式があります。
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Move \cs{m@th} from \cs{@tabarray}}
 %    \begin{macrocode}
 \def\array{\let\@acol\@arrayacol \let\@classz\@arrayclassz
   \let\@classiv\@arrayclassiv
-  \let\\\@arraycr\let\@halignto\@empty\X@tabarray}
+  \let\\\@arraycr\let\@halignto\@empty\m@th\X@tabarray}
 %
 \def\tabular{\let\@halignto\@empty\X@tabular}
 \@namedef{tabular*}{\@ifnextchar<%>
@@ -239,11 +291,12 @@
 %           calc extensions apply (sync with lttab.dtx v1.1j)}
 % \changes{v1.2j}{2018/09/20}{Change \cs{@stabular} to \cs{p@stabular},
 %           to avoid conflict with \textsf{stabular} package}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Remove math mode switch}
 %    \begin{macrocode}
 \def\p@stabular<#1>#2{%
    \setlength\dimen@{#2}%
    \edef\@halignto{to\the\dimen@}\p@tabular<#1>}
-\def\p@tabular<#1>{\leavevmode \null\hbox \bgroup $\let\@acol\@tabacol
+\def\p@tabular<#1>{\leavevmode \null\hbox \bgroup \let\@acol\@tabacol
    \let\@classz\@tabclassz
    \let\@classiv\@tabclassiv \let\\\@tabularcr\p@tabarray<#1>}
 %    \end{macrocode}
@@ -253,8 +306,9 @@
 % \begin{macro}{\p@tabarray}
 % 位置オプションを調べます。
 % \changes{v1.1d}{1995/11/10}{\cs{@tabarray} to \cs{p@tabarray}}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Move \cs{m@th} to \cs{array}}
 %    \begin{macrocode}
-\def\p@tabarray<#1>{\m@th\@ifnextchar[%]
+\def\p@tabarray<#1>{\@ifnextchar[%]
    {\p@array<#1>}{\p@array<#1>[c]}}
 %    \end{macrocode}
 % \end{macro}
@@ -274,25 +328,21 @@
   \fork@array@option<#1>[#2]\@begin@alignbox
   \bgroup\box@dir\adjustbaseline
   \setbox\@arstrutbox\hbox{%
+%    \end{macrocode}
+% \changes{v1.2n}{2026/06/01}{上記で組方向はすでに変わっているので
+%    ここでの組方向変更は不要}
+%    \begin{macrocode}
   \iftdir
-    \if #1y\relax\yoko
-       \vrule\@height\arraystretch\ht\strutbox
-             \@depth\arraystretch\dp\strutbox \@width\z@
-    \else\if #1z\relax\@rotswtrue
+    \ifmdir
        \vrule\@height\arraystretch\ht\zstrutbox
              \@depth\arraystretch\dp\zstrutbox \@width\z@
     \else
        \vrule\@height\arraystretch\ht\tstrutbox
              \@depth\arraystretch\dp\tstrutbox \@width\z@
-    \fi\fi
-  \else
-    \if #1t\relax\tate
-       \vrule\@height\arraystretch\ht\tstrutbox
-             \@depth\arraystretch\dp\tstrutbox \@width\z@
-    \else
-       \vrule\@height\arraystretch\ht\strutbox
-             \@depth\arraystretch\dp\strutbox \@width\z@
     \fi
+  \else
+    \vrule\@height\arraystretch\ht\strutbox
+          \@depth\arraystretch\dp\strutbox \@width\z@
   \fi}%
   \@mkpream{#3}\edef\@preamble{\ialign \noexpand\@halignto
   \bgroup \tabskip\z@skip \@arstrut \@preamble \tabskip\z@skip \cr}%
@@ -322,9 +372,14 @@
 % |\@end@alignbox|は|\p@array|から呼び出される|\fork@array@option|によって
 % 設定されます。
 % \changes{v1.2a}{2016/08/20}{tabular環境後の余分な\cs{xkanjiskip}を削除}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Remove math mode switch}
 %    \begin{macrocode}
 \def\endarray{\crcr\egroup\egroup\@end@alignbox}
-\def\endtabular{\crcr\egroup\egroup\@end@alignbox $\egroup\null}
+%    \end{macrocode}
+% 縦組の|<z>|指定で数式を使用する場合、
+% この位置に|\null|を入れないと余分な|\xkanjiskip|が入ります。
+%    \begin{macrocode}
+\def\endtabular{\crcr\egroup\egroup\@end@alignbox\egroup\null}
 \expandafter \let \csname endtabular*\endcsname = \endtabular
 %    \end{macrocode}
 % \end{macro}
@@ -371,88 +426,150 @@
 % \end{itemize}
 % \changes{v1.2f}{2017/03/28}{表と周囲との揃え位置を修正}
 % \changes{v1.2h}{2017/07/21}{表と周囲との揃え位置をさらに修正}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Use text mode vertical centering}
 %    \begin{macrocode}
 \def\fork@array@option<#1>[#2]{%
 \@rotswfalse
 %    \end{macrocode}
+% 組方向が変わらない・調整が必要ないときのデフォルト：
+%    \begin{macrocode}
+  \if #2t\relax
+    \let\@begin@alignbox\vtop
+  \else\if #2b\relax
+    \let\@begin@alignbox\vbox
+  \else
+    \let\@begin@alignbox\vcenter@text
+  \fi\fi
+  \let\@end@alignbox\relax
+%    \end{macrocode}
 % 縦組モードのとき：
 %    \begin{macrocode}
-\iftdir
-\if #1y\relax\let\box@dir\yoko
-  \if #2t\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \raise\@tempdima\vtop\bgroup\kern\z@\vtop}%
-     \let\@end@alignbox\egroup
-  \else\if #2b\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \raise\@tempdima\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\else\if #1z\relax\let\box@dir\relax\@rotswtrue
-  \if #2t\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \advance\@tempdima\ht\tstrutbox
-         \raise\arraystretch\@tempdima\vtop\bgroup\kern\z@\vtop}%
-     \let\@end@alignbox\egroup
-  \else\if #2b\relax
-     \def\@begin@alignbox{%
-         \@tempdima=\tbaselineshift
-         \advance\@tempdima-\ybaselineshift
-         \advance\@tempdima-\dp\tstrutbox
-         \raise\arraystretch\@tempdima\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\else\let\box@dir\tate
-  \if #2t\relax
-     \let\@begin@alignbox\vtop
-     \let\@end@alignbox\relax
-  \else\if #2b\relax
-     \let\@begin@alignbox\vbox
-     \let\@end@alignbox\relax
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\fi\fi
+  \iftdir
+%    \end{macrocode}
+% 縦数式ディレクションのとき：
+%    \begin{macrocode}
+    \ifmdir
+%    \end{macrocode}
+% 組方向が|<y>|指定のとき：
+%    \begin{macrocode}
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
+          \let\@end@alignbox\egroup
+        \else\if #2b\relax
+          \def\@begin@alignbox{\vbox\bgroup\vbox}%
+          \def\@end@alignbox{\kern\z@\egroup}%
+        \fi\fi
+%    \end{macrocode}
+% 組方向が|<t>|指定またはデフォルトのとき：
+%    \begin{macrocode}
+      \else\if #1t\relax
+        \let\box@dir\tate
+%    \end{macrocode}
+% 数式モードのとき：調整なし。
+% |\textbaselineshiftfactor|を変更していなければ
+% |\vtop|, |\vbox|で欧文ベースラインが揃うはず。
+%    \begin{macrocode}
+        \ifmmode
+          \if #2t\relax
+          \else\if #2b\relax
+          \else
+            \let\@begin@alignbox\vcenter
+          \fi\fi
+%    \end{macrocode}
+% 非数式モードのとき：|[t]|, |[b]|は欧文ベースラインを揃える。
+% ボックス内の欧文ベースラインはボックスのベースラインから
+% |\tbaselineshift|下がっているのでその分上げ、
+% 周囲の欧文ベースラインに揃えるため|\ybaselineshift|下げる。
+%    \begin{macrocode}
+        \else
+          \if #2t\relax
+            \def\@begin@alignbox{%
+              \raise\dimexpr\tbaselineshift-\ybaselineshift\relax\vtop}%
+            \let\@end@alignbox\relax
+          \else\if #2b\relax
+            \def\@begin@alignbox{%
+              \raise\dimexpr\tbaselineshift-\ybaselineshift\relax\vbox}%
+            \let\@end@alignbox\relax
+          \fi\fi
+        \fi
+%    \end{macrocode}
+% 組方向が|<z>|指定のとき：何もしない。
+%    \begin{macrocode}
+      \else
+        \let\box@dir\relax
+      \fi\fi
+%    \end{macrocode}
+% 通常の縦組モードのとき：
+%    \begin{macrocode}
+    \else
+%    \end{macrocode}
+% 組方向が|<y>|指定のとき：
+%    \begin{macrocode}
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \def\@begin@alignbox{\vtop\bgroup\kern\z@\vtop}%
+          \let\@end@alignbox\egroup
+        \else\if #2b\relax
+          \def\@begin@alignbox{\vbox\bgroup\vbox}%
+          \def\@end@alignbox{\kern\z@\egroup}%
+        \fi\fi
+%    \end{macrocode}
+% 組方向が|<z>|指定のとき：
+%    \begin{macrocode}
+      \else\if #1z\relax
+        \let\box@dir\relax
+        \@rotswtrue
+        \if #2t\relax
+          \def\@begin@alignbox{%
+            \null$\m@th
+            \raise\dimexpr\ybaselineshift
+              -\dimexpr\ybaselineshift*\textbaselineshiftfactor/1000\relax
+              \relax\vtop}%
+          \def\@end@alignbox{\m@th$\null}%
+        \else\if #2b\relax
+          \def\@begin@alignbox{%
+            \null$\m@th
+            \raise\dimexpr\ybaselineshift
+              -\dimexpr\ybaselineshift*\textbaselineshiftfactor/1000\relax
+              \relax\vbox}%
+          \def\@end@alignbox{\m@th$\null}%
+        \else
+          \def\@begin@alignbox{\null$\m@th\vcenter}%
+          \def\@end@alignbox{\m@th$\null}%
+        \fi\fi
+%    \end{macrocode}
+% 組方向が|<t>|指定またはデフォルトのとき：
+%    \begin{macrocode}
+      \else
+        \let\box@dir\tate
+      \fi\fi
+    \fi
 %    \end{macrocode}
 % 横組モードのとき：
 %    \begin{macrocode}
-\else
-\if #1t\relax\let\box@dir\tate
-  \if #2t\relax
-     \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
-     \let\@end@alignbox\egroup
-  \else\if #2b\relax
-     \def\@begin@alignbox{\vbox\bgroup\vbox}%
-     \def\@end@alignbox{\kern\z@\egroup}%
   \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\else\let\box@dir\yoko
-  \if #2t\relax
-     \let\@begin@alignbox\vtop
-     \let\@end@alignbox\relax
-  \else\if #2b\relax
-     \let\@begin@alignbox\vbox
-     \let\@end@alignbox\relax
-  \else
-     \let\@begin@alignbox\vcenter
-     \let\@end@alignbox\relax
-  \fi\fi
-\fi\fi}
+%    \end{macrocode}
+% 組方向が|<t>|指定のとき：
+%    \begin{macrocode}
+    \if #1t\relax
+      \let\box@dir\tate
+      \if #2t\relax
+        \def\@begin@alignbox{\vtop\bgroup\kern\z@\vbox}%
+        \let\@end@alignbox\egroup
+      \else\if #2b\relax
+        \def\@begin@alignbox{\vbox\bgroup\vbox}%
+        \def\@end@alignbox{\kern\z@\egroup}%
+      \fi\fi
+%    \end{macrocode}
+% 組方向が|<y>|, |<z>|指定またはデフォルトのとき：
+%    \begin{macrocode}
+    \else
+      \let\box@dir\yoko
+    \fi
+  \fi}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -661,16 +778,14 @@
      \@latex@error{Use \noexpand\pcaption with `\string\layoutfloat'}\@eha
   \fi
   \make@pcaptionbox{#3}%
-  \@pboxswfalse
   \setbox\@tempboxa\vbox{\hbox to\hsize{\if l\float@pos\else\hss\fi
     \if l\caption@posb\box\@captionbox\kern\captionfloatsep\fi
     \if t\caption@posa\vtop
     \else\if b\caption@posa\vbox
-    \else\@pboxswtrue $\vcenter \fi\fi
+    \else \vcenter@text \fi\fi
     {\if u\caption@posb\box\@captionbox\kern\captionfloatsep\fi
      \unvbox\@floatbox
      \if d\caption@posb\kern\captionfloatsep\box\@captionbox\fi}%
-    \if@pboxsw \m@th$\fi
     \if r\caption@posb\kern\captionfloatsep\box\@captionbox\fi
     \if r\float@pos\else\hss\fi}}%
   \par\vskip.25\baselineskip
@@ -742,19 +857,18 @@
   \if@tempswa \@tempdima\ht0 \advance\@tempdima\dp0
   \else \@tempdima\wd0 \fi
   \ifdim\@tempdima>\captionwidth \@tempdima\captionwidth \fi
-  \@pboxswfalse
   \setbox0\hbox{\if@rotsw $\fi
     \if u\caption@posb\vbox
     \else\if d\caption@posb\vbox
     \else\if t\caption@posa\vtop
     \else\if b\caption@posa\vbox
-    \else\ifmmode\vcenter\else\@pboxswtrue $\vcenter\fi
+    \else\ifmmode\vcenter\else\vcenter@text\fi
     \fi\fi\fi\fi
     {\hsize\@tempdima\kern\z@
     \vbox{\captiondir\hsize\@tempdima
       \captionfontsetup\parindent\z@\inhibitglue
       \csname fnum@\@captype\endcsname\char\euc"A1A1\relax#1}\kern\z@
-    }\if@pboxsw \m@th$\fi \if@rotsw \m@th$\fi}%
+    }\if@rotsw \m@th$\fi}%
 %    \end{macrocode}
 % 最後に|\@captionbox|を組み立てます。
 %
@@ -952,6 +1066,7 @@
 % \changes{v1.2c}{2016/11/19}{Ensure \cs{@parboxto} holds the value
 %    of \cs{@tempdimb} not the register itself (pr/3867)
 %    (sync with ltboxes.dtx v1.1g)}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Use text mode vertical centering}
 %    \begin{macrocode}
 \long\def\@iiiparbox<#1>#2#3[#4]#5#6{%
   \leavevmode\null\bgroup
@@ -970,7 +1085,8 @@
     \fi
     \@begin@parbox\@parboxto{\box@dir\adjustbaseline
        \let\hss\vss\let\unhbox\unvbox
-       \csname bm@#4\endcsname}\@end@parbox
+       \csname bm@#4\endcsname}%
+       \@end@parbox
   \@end@tempboxa\egroup\null}
 %    \end{macrocode}
 % \end{macro}
@@ -1013,56 +1129,94 @@
 % \end{itemize}
 % \end{itemize}
 % \changes{v1.2f}{2017/03/28}{段落の箱と周囲との揃え位置を修正}
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: Use text mode vertical centering}
 %    \begin{macrocode}
 \def\fork@parbox@option<#1>[#2]{%
 \@rotswfalse
 %    \end{macrocode}
 % 縦組モードのとき：
 %    \begin{macrocode}
-\iftdir
-\if #1y\relax\let\box@dir\yoko
-   \if #2t\relax
-      \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
-      \let\@end@parbox\egroup
-   \else\if #2b\relax
-      \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
-      \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\else\if #1z\relax\@rotswtrue \let\box@dir\relax
-   \if #2t\relax
-      \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
-      \let\@end@parbox\egroup
-   \else\if #2b\relax
-      \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
-      \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\else\let\box@dir\tate
-   \if #2t\relax
-      \let\@begin@parbox\vtop
-      \let\@end@parbox\relax
-   \else\if #2b\relax
-      \let\@begin@parbox\vbox
-      \let\@end@parbox\relax
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
-   \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
-\fi\fi
+  \iftdir
+    \ifmdir
+      \if #1y\relax
+        \let\box@dir\yoko
+        \if #2t\relax
+          \let\@begin@parbox\plext@dirbox@vtop@top
+        \else\if #2b\relax
+          \let\@begin@parbox\plext@dirbox@vbox@bottom
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \else\if #1t\relax
+        \let\box@dir\tate
+        \if #2t\relax
+          \let\@begin@parbox\plext@dirbox@vtop@top
+        \else\if #2b\relax
+          \let\@begin@parbox\plext@dirbox@vbox@bottom
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \else
+        \let\box@dir\relax
+        \if #2t\relax
+          \let\@begin@parbox\vtop
+        \else\if #2b\relax
+          \let\@begin@parbox\vbox
+        \else
+          \ifmmode
+            \let\@begin@parbox\vcenter
+          \else
+            \let\@begin@parbox\vcenter@text
+          \fi
+        \fi\fi
+        \let\@end@parbox\relax
+      \fi\fi
+    \else
+      \if #1y\relax\let\box@dir\yoko
+         \if #2t\relax
+            \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
+            \let\@end@parbox\egroup
+         \else\if #2b\relax
+            \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
+            \def\@end@parbox{\kern\z@\egroup}%
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \else\if #1z\relax\@rotswtrue \let\box@dir\relax
+         \if #2t\relax
+            \def\@begin@parbox{\raise\cht\vtop\bgroup\kern\z@\vtop}%
+            \let\@end@parbox\egroup
+         \else\if #2b\relax
+            \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
+            \def\@end@parbox{\kern\z@\egroup}%
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \else\let\box@dir\tate
+         \if #2t\relax
+            \let\@begin@parbox\vtop
+            \let\@end@parbox\relax
+         \else\if #2b\relax
+            \let\@begin@parbox\vbox
+            \let\@end@parbox\relax
+         \else
+            \let\@begin@parbox\vcenter@text
+            \let\@end@parbox\relax
+         \fi\fi
+      \fi\fi
+    \fi
 %    \end{macrocode}
 % 横組モードのとき：
 %    \begin{macrocode}
@@ -1074,13 +1228,10 @@
    \else\if #2b\relax
       \def\@begin@parbox{\lower\cdp\vbox\bgroup\vbox}%
       \def\@end@parbox{\kern\z@\egroup}%
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
    \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
+      \let\@begin@parbox\vcenter@text
+      \let\@end@parbox\relax
+   \fi\fi
 \else\let\box@dir\yoko
    \if #2t\relax
       \let\@begin@parbox\vtop
@@ -1088,13 +1239,10 @@
    \else\if #2b\relax
       \let\@begin@parbox\vbox
       \let\@end@parbox\relax
-   \else\ifmmode
-      \let\@begin@parbox\vcenter
-      \let\@end@parbox\relax
    \else
-      \def\@begin@parbox{$\vcenter}%
-      \def\@end@parbox{\m@th$}%
-   \fi\fi\fi
+      \let\@begin@parbox\vcenter@text
+      \let\@end@parbox\relax
+   \fi\fi
 \fi\fi}
 %    \end{macrocode}
 % \end{macro}
@@ -1161,9 +1309,10 @@
 %
 % \begin{macro}{\picture}
 % 組方向オプションを調べます。
+% \changes{v1.2n}{2026/06/01}{\LaTeXe~2026-06-01: adding no-op optional argument for gh/1172}
 %    \begin{macrocode}
-\def\picture{\@ifnextchar<%>
-   {\X@picture}{\X@picture<Z>}}
+\RenewDocumentCommand\picture{O{} D<>{Z} m}{%
+  \X@picture<#2>#3}
 %    \end{macrocode}
 % \end{macro}
 %

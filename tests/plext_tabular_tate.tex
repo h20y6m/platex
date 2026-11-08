@@ -1,0 +1,131 @@
+\errorcontextlines=100
+\documentclass[11pt]{tarticle}
+\usepackage[T1]{fontenc}
+% --------------------------------------
+% math check
+\usepackage{xcolor}
+\def\mymathi{\color{red}}
+\def\mymathii{\color{green!50!black}}
+\def\mymathiii{\color{blue}}
+\def\mymathiv{\ERROR}
+\newcount\mymathlevel
+\protected\def\mymath{%
+  \advance\mymathlevel1 %
+  \csname mymath\romannumeral\mymathlevel\endcsname}
+\everymath{\mymath}
+% --------------------------------------
+\usepackage{etoolbox}
+\apptocmd{\adjustbaseline}{%
+%  \ybaselineshift=2pt
+%  \tbaselineshift=5pt
+}{}{}
+%\textbaselineshiftfactor=0
+%\renewcommand{\arraystretch}{2}
+\setlength{\tabcolsep}{0pt}
+\setlength{\arraycolsep}{0pt}
+\showboxdepth=10
+\showboxbreadth=1000
+\tracingoutput=1
+\begin{document}
+\newcommand{\TestI}[1]{%
+  \leavevmode\llap{\texttt{|\detokenize{#1}|}}：
+  ◆あM◆
+  \begin{tabular}#1{c}
+    ◆あM◆ \\ ◆あM◆ \\ ◆あM◆
+  \end{tabular}%
+  ◆あM◆
+  $\mbox{◆あM◆
+  \begin{tabular}#1{c}
+    ◆あM◆ \\ ◆あM◆ \\ ◆あM◆
+  \end{tabular}%
+  ◆あM◆}%
+  ◆あM◆
+  \begin{array}#1{c}
+    ◆あM◆ \\ ◆あM◆ \\ ◆あM◆
+  \end{array}%
+  ◆あM◆$%
+  ◆あM◆
+}
+\TestI{}
+\vfil
+\TestI{[t]}
+\vfil
+\TestI{[b]}
+\vfil
+\TestI{[c]}
+\newpage
+\TestI{<y>}
+\vfil
+\TestI{<y>[t]}
+\vfil
+\TestI{<y>[b]}
+\vfil
+\TestI{<y>[c]}
+\newpage
+\TestI{<t>}
+\vfil
+\TestI{<t>[t]}
+\vfil
+\TestI{<t>[b]}
+\vfil
+\TestI{<t>[c]}
+\newpage
+\TestI{<z>}
+\vfil
+\TestI{<z>[t]}
+\vfil
+\TestI{<z>[b]}
+\vfil
+\TestI{<z>[c]}
+\newpage
+\newcommand{\TestII}[1]{%
+  \leavevmode\llap{\texttt{|\detokenize{#1}|}}：
+  ◆あM◆
+  \begin{tabular}#1{c}
+    \hline ◆あM◆ \\ \hline
+  \end{tabular}%
+  ◆あM◆
+  $\mbox{◆あM◆
+  \begin{tabular}#1{c}
+    \hline ◆あM◆ \\ \hline
+  \end{tabular}%
+  ◆あM◆}
+  ◆あM◆
+  \begin{array}#1{c}
+    \hline ◆あM◆ \\ \hline
+  \end{array}%
+  ◆あM◆$%
+  ◆あM◆
+}
+\TestII{}
+\vfil
+\TestII{[t]}
+\vfil
+\TestII{[b]}
+\vfil
+\TestII{[c]}
+\newpage
+\TestII{<y>}
+\vfil
+\TestII{<y>[t]}
+\vfil
+\TestII{<y>[b]}
+\vfil
+\TestII{<y>[c]}
+\newpage
+\TestII{<t>}
+\vfil
+\TestII{<t>[t]}
+\vfil
+\TestII{<t>[b]}
+\vfil
+\TestII{<t>[c]}
+\newpage
+\TestII{<z>}
+\vfil
+\TestII{<z>[t]}
+\vfil
+\TestII{<z>[b]}
+\vfil
+\TestII{<z>[c]}
+\end{document}
