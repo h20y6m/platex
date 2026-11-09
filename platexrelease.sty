@@ -18,9 +18,9 @@
 %% 
 %% File: plvers.dtx
 \edef\p@known@latexreleaseversion
-   {2026-06-01}
+   {2026-11-01}
 \edef\platexreleaseversion
-   {2026-06-01}
+   {2026-11-01}
 \newif\if@plincludeinrelease
 \@plincludeinreleasefalse
 \def\plIncludeInRelease#1{%
@@ -111,6 +111,7 @@
 \platexrelease@adjust@patchdate{2025/06/01}{2025/05/31}
 \platexrelease@adjust@patchdate{2025/11/01}{2025/10/31}
 \platexrelease@adjust@patchdate{2026/06/01}{2026/05/31}
+\platexrelease@adjust@patchdate{2026/11/01}{2026/10/31}
 \def\reserved@a{%
 \edef\requestedpLaTeXdate{\the\count@}%
 \reserved@b}
@@ -1975,7 +1976,7 @@ of this package available from CTAN}
 \def\prepare@family@series@update#1#2{%
  \def\@currentmetafamily{#1}%
  \if@forced@series
-   \romanfamily#2%
+   \romanfamily#2%   % changed \fontfamily -> \romanfamily
  \else
    \expand@font@defaults
    \let\target@series@value\@empty
@@ -1984,7 +1985,7 @@ of this package available from CTAN}
       \@meta@family@list
       \@elt{??}%
    \let\@elt\relax
-   \fontfamily#2%
+   \romanfamily#2%   % changed \fontfamily -> \romanfamily
    \ifx\target@series@value\@empty
    \else
      \ifx \f@series\target@series@value
@@ -3099,6 +3100,7 @@ of this package available from CTAN}
    \@makeother\`%
    \@makeother\'%
    \@makeother\"%
+   \@makeother\,%
    \catcode`\~13\relax
    \catcode`\%14\relax
   \global\let\@@if@newlist\if@newlist
@@ -4089,6 +4091,9 @@ of this package available from CTAN}
        \csname bm@#3\endcsname}%
     \if@pboxsw \m@th$\fi
   \@end@tempboxa}
+\plEndIncludeInRelease
+\plIncludeInRelease{2026/11/01}%
+                   {\underline}{Avoid 'fake math'}%
 \plEndIncludeInRelease
 \plIncludeInRelease{2019/10/01}{\underline}
                    {Make robust}%

@@ -39,9 +39,10 @@
 \plcore@fallback{2025/06/01}{plcore-2023-02-14.ltx}
 \plcore@fallback{2025/11/01}{plcore-2025-06-01.ltx}
 \plcore@fallback{2026/06/01}{plcore-2025-11-01.ltx}
+\plcore@fallback{2026/11/01}{plcore-2026-06-01.ltx}
 \def\pfmtname{pLaTeX2e}
 \def\pfmtversion
-   {2026-06-01}
+   {2026-11-01}
 \def\ppatch@level{0}
 \edef\platexBANNER{\noexpand\platexNILa
                    \the\everyjob % LaTeX banner and delayed codes
@@ -2082,6 +2083,7 @@
    \@makeother\`%
    \@makeother\'%
    \@makeother\"%
+   \@makeother\,%
    \catcode`\~13\relax
    \catcode`\%14\relax
   \global\let\@@if@newlist\if@newlist
@@ -2423,10 +2425,6 @@
     \box0 %
   \endgroup
 }
-\DeclareRobustCommand\underline[1]{%
-  \relax
-  \ifmmode\@@underline{#1}%
-  \else \leavevmode\null$\@@underline{\hbox{#1}}\m@th$\null\relax\fi}
 \ifx\widowpenalties\@undefined
     \mathchardef\e@alloc@top=255
     \let\e@alloc@chardef\chardef

@@ -142,6 +142,7 @@
 % \changes{v1.3o}{2025/09/21}{\cs{printglossary}の定義を\cs{AtBeginDocument}内で行うように}
 % \changes{v1.3p}{2025/11/01}{\LaTeXe~2025-06-01, 2025-11-01に伴う修正}
 % \changes{v1.3q}{2026/06/01}{\LaTeXe~2026-06-01に伴う修正}
+% \changes{v1.3r}{2026/11/01}{\LaTeXe~2026-11-01に伴う修正}
 % \fi
 %
 % \iffalse
@@ -1444,6 +1445,11 @@
    \@makeother\`%
    \@makeother\'%
    \@makeother\"%
+%    \end{macrocode}
+%  \changes{v1.3r}{2026/11/01}{Resetting \cs{catcode} of comma added
+%    (sync with ltoutput.dtx 2026/09/13 v1.5a)}
+%    \begin{macrocode}
+   \@makeother\,%
    \catcode`\~13\relax
    \catcode`\%14\relax
   \global\let\@@if@newlist\if@newlist
@@ -2983,15 +2989,20 @@
 % \changes{v1.2c}{2016/02/28}{1.2bと同様の修正を\cs{underline}命令にも行った}
 % \changes{v1.3c}{2019/09/16}{Make \cs{underline} robust
 %    (sync with ltboxes.dtx 2019/08/27 v1.3b)}
+% \changes{v1.3r}{2026/11/01}{\LaTeXe~2026-06-01でテキストモードでは
+%    数式モードを使用しない実装に変更されたため修正の必要がなくなりました}
 %    \begin{macrocode}
+%<platexrelease>\plIncludeInRelease{2026/11/01}%
+%<platexrelease>                   {\underline}{Avoid 'fake math'}%
+%<*plcore|platexrelease>
+%</plcore|platexrelease>
+%<platexrelease>\plEndIncludeInRelease
 %<platexrelease>\plIncludeInRelease{2019/10/01}{\underline}
 %<platexrelease>                   {Make robust}%
-%<*plcore|platexrelease>
-\DeclareRobustCommand\underline[1]{%
-  \relax
-  \ifmmode\@@underline{#1}%
-  \else \leavevmode\null$\@@underline{\hbox{#1}}\m@th$\null\relax\fi}
-%</plcore|platexrelease>
+%<platexrelease>\DeclareRobustCommand\underline[1]{%
+%<platexrelease>  \relax
+%<platexrelease>  \ifmmode\@@underline{#1}%
+%<platexrelease>  \else \leavevmode\null$\@@underline{\hbox{#1}}\m@th$\null\relax\fi}
 %<platexrelease>\plEndIncludeInRelease
 %<platexrelease>\plIncludeInRelease{2016/04/17}{\underline}
 %<platexrelease>                   {Remove extra \xkanjiskip}%

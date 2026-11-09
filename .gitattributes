@@ -1,0 +1,22 @@
+* text=auto eol=lf
+
+# Windows command batches use CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# shell scripts use LF
+*.sh  text eol=lf
+
+# TeX files use LF
+*.clo text eol=lf
+*.cls text eol=lf
+*.def text eol=lf
+*.fd  text eol=lf
+*.ini text eol=lf
+*.ins text eol=lf
+*.ltx text eol=lf
+*.sty text eol=lf
+*.tex text eol=lf
+
+# Binary files
+*.pdf binary
